@@ -1,4 +1,4 @@
-function [ Ve, thetae, eps_all, convergence ] = f_SE_NR_algorithm_v2017 ( Ve, thetae, topo, Y_bus, z, W, ...
+function [ Ve, thetae, eps_all, time, convergence ] = f_SE_NR_algorithm_v2017 ( Ve, thetae, topo, Y_bus, z, W, ...
     R_s, R_diag, b, c1, ind_meas, N_meas, eps_tol, Max_iter, H_decoupled, H_sparse, N_total)
 %**************************************************************************
 %DESCRIPTION OF FUNCTION (VERSION 2017)
@@ -53,7 +53,7 @@ function [ Ve, thetae, eps_all, convergence ] = f_SE_NR_algorithm_v2017 ( Ve, th
 eps=eps_tol+1; %making sure we'll enter the loop
 eps_all=zeros(Max_iter,1); %initializing eps_all to maximum possible size
 iter=1;  %set the initial iteration counter to 1
-
+time=0;  %initialize the simulation time
 while iter<=Max_iter && eps>eps_tol
 %TASK 1: getting H(x0):
  H = f_measJac_H_v2017( Ve, thetae, Y_bus, topo, ind_meas, N_meas, H_decoupled, H_sparse);
@@ -73,22 +73,20 @@ else
     fm=1;%simplify fm, if N_total is smaller than 9, fm should be determined based on the table in the paper
 end    
 
-
-sm=zeros(1,N_total);
-parfor k=1:N_total
-    y=zeros(1,N_total);
+for k=1:N_total
     for i=1:N_total
-        omega_column=omega(:,k);
-        omega_column(i)=[];
-        x=abs(omega(i,k)+omega_column);
-        x(x==0) = [];%deleting the 0 in x, not sure if it is correct to do so??
-        x=x.';
+        for j=1:N_total
+            if(i==j)
+                %do nothing
+            else
+                x(j)=abs(omega(i,k)+omega(j,k));
+            end
+        end
+        x(x==0) = [];%deleting the 0 in x, not sure if it is correct to do so?? 
         y(i)=lomed(x);
     end
     sm(k)=1.1926*fm*lomed(y);
 end
-
- 
 
 for i=1:N_total
     PS(i)=max(omega(i,:)./sm);
