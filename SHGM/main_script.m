@@ -5,7 +5,7 @@ clear all
 %load Dataset_B.mat;
 load Measurement.mat
 
-Mypar=parpool('local',4);%open parallel pool
+Mypar=parpool('local',8);%open parallel pool
 tic;
 %HERE COME USER-DEFINED PARAMETERS OF GN algorithm
 eps_tol=10^-5;  %stopping criterion for max(abs(delta_x))
@@ -72,6 +72,8 @@ for i=1:a
     [ Ve, thetae, eps_all, convergence ]=f_SE_NR_algorithm_v2017 ( Ve, thetae, topo, Y_bus, z, W, R_s,... 
         R_diag, b, c1, ind_meas, N_meas, eps_tol, Max_iter, H_decoupled, H_sparse, N_total);
     state(:,i)=[thetae;Ve];
+    [ h ] = f_measFunc_h_v2017( Ve, thetae, Y_bus, topo, ind_meas, N_meas);
+    J(i)=(z-h)'*W*(z-h);
 end
 toc;
 time=toc-tic;

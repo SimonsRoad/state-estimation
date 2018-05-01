@@ -19,9 +19,9 @@ beta=0.1;%smoothing parameter
 Pe=0.1*eye(topo.nBus*2-1,topo.nBus*2-1);
 Q=10^(-4)*eye(topo.nBus*2-1,topo.nBus*2-1);
 c=size(topo.busNumbers,1);
-Ve=ones(c,1);
+Ve=meas.BusV(:,1).*ones(c,1);
 thetae=zeros(c,1);
-Vf=ones(c,1);
+Vf=meas.BusV(:,1).*ones(c,1);
 thetaf=zeros(c-1,1);
 a=zeros(c*2-1,1);
 b=zeros(c*2-1,1);
@@ -67,7 +67,7 @@ for i=1:d
         meas.std_LineP_TF(ind_meas.ind_meas_Pji); meas.std_LineQ_FT(ind_meas.ind_meas_Qij); ...
         meas.std_LineQ_TF(ind_meas.ind_meas_Qji)];
     R=sparse(1:N_total,1:N_total,((R_diag).^2),N_total,N_total);
-
+    W=sparse(1:N_total,1:N_total,1./((R_diag).^2),N_total,N_total);
     %TASK 1: forcasted state vectors and measurements
     %Vf 14*1, thetaf 13*1
     [ Vf, thetaf, a, b, zf, Tf, H] = forcast (a, b, alpha, beta, Vf, thetaf, Ve, thetae, Pe, Q,...
@@ -83,6 +83,8 @@ for i=1:d
     Ve=xe(topo.nBus:topo.nBus*2-1,1);
     state(:,i)=[thetae;Ve];
     state_predict(:,i)=[thetaf;Vf];
+    [ h ] = f_measFunc_h_v2017( Ve, thetae, Y_bus, topo, ind_meas, N_meas);
+    J(i)=(z-h)'*W*(z-h);
 end
 
 

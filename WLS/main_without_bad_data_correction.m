@@ -5,7 +5,7 @@ clc;clear;
 load Measurement.mat
 
 %HERE COME USER-DEFINED PARAMETERS OF GN algorithm
-eps_tol=10^-5;  %stopping criterion for max(abs(delta_x))
+eps_tol=10^-6;  %stopping criterion for max(abs(delta_x))
 Max_iter=100; %maximum number of GN iterations
 H_decoupled=0; %if 0, full H and 'normal' GN are used. If 1, decoupled H and fast decoupled GN are used
 H_sparse=1; %if 1, H is created as a sparse matrix, if 0 - as a dense matrix
@@ -96,6 +96,8 @@ for i=1:a
     end
 	fprintf('----------------------------\n\n\n\n');
     state(:,i)=[theta;V];
+    [ h ] = f_measFunc_h_v2017( V, theta, Y_bus, topo, ind_meas, N_meas);
+    J(i)=(z-h)'*W*(z-h);
 end
 
 

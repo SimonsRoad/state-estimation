@@ -1,7 +1,7 @@
 clc;clear;
 %LOADING DATASET
-load Dataset_B.mat;
-%load Measurement.mat
+%load Dataset_B.mat;
+load Measurement.mat
 %load GoodMeasurement_14_bus.mat;
 
 
@@ -203,4 +203,6 @@ for i=1:a
     end
 	state_with_bad_data(:,i)=[theta_SE0;V_SE0];
     state(:,i)=[theta_SE1;V_SE1];
+    [ h ] = f_measFunc_h_v2017( V_SE1, theta_SE1, Y_bus, topo, ind_meas, N_meas);
+    J(i)=(z-h)'*W*(z-h);
 end
